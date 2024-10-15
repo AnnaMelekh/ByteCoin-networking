@@ -9,9 +9,10 @@
 import UIKit
 
 
-class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDelegate {
+class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDelegate, CoinManagerDelegate {
     
-    let coinManager = CoinManager()
+    
+    var coinManager = CoinManager()
     let row = 0
  
     @IBOutlet weak var bitcoinLabel: UILabel!
@@ -21,10 +22,11 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        setupUI()
         currencyPicker.dataSource = self
         currencyPicker.delegate = self
         
+        coinManager.delegate = self
 
     }
 
@@ -46,9 +48,23 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
         currencyLabel.text = selectedCurrency
         coinManager.getCoinPrice(for: selectedCurrency)
     
-        
+    }
+    func didUpdateCoin(coin: CoinModel) {
+        DispatchQueue.main.async {
+            let string = String(format: "%.2f", coin.rate)
+            self.bitcoinLabel.text = string
+        }
     }
     
+    func didFailWithError(error: any Error) {
+        print(error.localizedDescription)
+    }
+    
+    func setupUI() {
+        bitcoinLabel.adjustsFontSizeToFitWidth = true
+        bitcoinLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+    }
 }
 
 
